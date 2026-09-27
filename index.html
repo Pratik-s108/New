@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="hi-en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daily Ledger — Routine Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F1EBDC;
+    --paper-line: #C8BEA6;
+    --paper-line-strong: #A99C7C;
+    --ink: #2B2620;
+    --ink-soft: #6B5F4C;
+    --stamp: #8C3B33;
+    --stamp-soft: #8C3B3320;
+    --mustard: #B98B1E;
+    --mustard-soft: #B98B1E22;
+    --card: #FBF8F0;
+    --shadow: rgba(43, 38, 32, 0.12);
+    --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --paper: #1B1814;
+      --paper-line: #3A3329;
+      --paper-line-strong: #4E4433;
+      --ink: #EDE6D6;
+      --ink-soft: #ABA08A;
+      --stamp: #D97362;
+      --stamp-soft: #D9736230;
+      --mustard: #E0B84A;
+      --mustard-soft: #E0B84A22;
+      --card: #221E18;
+      --shadow: rgba(0, 0, 0, 0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1B1814;
+    --paper-line: #3A3329;
+    --paper-line-strong: #4E4433;
+    --ink: #EDE6D6;
+    --ink-soft: #ABA08A;
+    --stamp: #D97362;
+    --stamp-soft: #D9736230;
+    --mustard: #E0B84A;
+    --mustard-soft: #E0B84A22;
+    --card: #221E18;
+    --shadow: rgba(0, 0, 0, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+  html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+  body {
+    margin: 0;
+    background: var(--paper);
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px);
+    background-size: 100% 2.1em;
+    background-position: 0 6.4em;
+    color: var(--ink);
+    font-family: var(--serif);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+    min-height: 100%;
+  }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px 20px 12px;
+  }
+
+  header.ledger-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+  .title-block h1 {
+    font-size: 1.9rem;
+    margin: 0 0 4px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .title-block p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    font-family: var(--mono);
+  }
+  .entry-meta {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+  }
+  .entry-meta input[type="date"] {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    background: transparent;
+    border: 1px solid var(--paper-line-strong);
+    border-radius: 4px;
+    padding: 4px 6px;
+    color: var(--ink);
+  }
+  .entry-no {
+    display: inline-block;
+    border: 1.5px solid var(--stamp);
+    color: var(--stamp);
+    padding: 2px 8px;
+    border-radius: 3px;
+    transform: rotate(-2deg);
+    font-weight: 600;
+  }
+
+  section.block {
+    margin: 26px 0;
+  }
+  .block-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .block-title h2 {
+    font-size: 1.05rem;
+    margin: 0;
+    font-weight: 600;
+  }
+  .block-title .count {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  .rows { display: flex; flex-direction: column; }
+  .row {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 4px;
+    border-bottom: 1px dashed var(--paper-line-strong);
+  }
+  .row:last-child { border-bottom: none; }
+  .row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--stamp);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .row .time {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    width: 58px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+    padding: 2px 0;
+  }
+  .row .time:focus { outline: none; border-bottom-color: var(--ink-soft); }
+  .row .task {
+    background: transparent;
+    border: none;
+    font-family: var(--serif);
+    font-size: 0.98rem;
+    color: var(--ink);
+    padding: 2px 2px;
+    width: 100%;
+  }
+  .row .task:focus { outline: none; }
+  .row.done .task { color: var(--ink-soft); text-decoration: line-through; text-decoration-color: var(--paper-line-strong); }
+  .row .del {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 6px;
+    opacity: 0.5;
+    line-height: 1;
+  }
+  .row .del:hover { opacity: 1; color: var(--stamp); }
+
+  .add-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .add-row button {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    background: none;
+    border: 1px dashed var(--paper-line-strong);
+    color: var(--ink-soft);
+    border-radius: 5px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .add-row button:hover { border-color: var(--stamp); color: var(--stamp); }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .metric {
+    background: var(--card);
+    border: 1px solid var(--paper-line-strong);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 6px var(--shadow);
+  }
+  .metric label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .metric .stepper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+  }
+  .metric .stepper button {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--paper-line-strong);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .metric .val {
+    font-family: var(--mono);
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  .mood-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .mood-row button {
+    font-size: 1.35rem;
+    background: var(--card);
+    border: 1px solid var(--paper-line-strong);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    filter: grayscale(1);
+    opacity: 0.55;
+    transition: transform 0.12s ease;
+  }
+  .mood-row button.active {
+    filter: none;
+    opacity: 1;
+    border-color: var(--mustard);
+    background: var(--mustard-soft);
+    transform: scale(1.08);
+  }
+
+  textarea.notes {
+    width: 100%;
+    min-height: 90px;
+    background: var(--card);
+    border: 1px solid var(--paper-line-strong);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: var(--serif);
+    font-size: 0.98rem;
+    color: var(--ink);
+    resize: vertical;
+  }
+  textarea.notes:focus { outline: 1.5px solid var(--stamp); }
+
+  footer.status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+    padding-top: 14px;
+    border-top: 1px solid var(--paper-line-strong);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .status .dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--mustard);
+    margin-right: 6px;
+  }
+  .history-toggle {
+    background: none;
+    border: none;
+    color: var(--stamp);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+  }
+  .history-list {
+    margin-top: 10px;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .history-list.open { display: flex; }
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    padding: 6px 8px;
+    background: var(--card);
+    border: 1px solid var(--paper-line-strong);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .history-item:hover { border-color: var(--stamp); }
+
+  @media (max-width: 420px) {
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .row { grid-template-columns: auto 1fr auto; }
+    .row .time { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="ledger-head">
+    <div class="title-block">
+      <h1>Daily Ledger</h1>
+      <p>routine · mood · notes</p>
+    </div>
+    <div class="entry-meta">
+      <input type="date" id="entryDate">
+      <span class="entry-no" id="entryNo">ENTRY —</span>
+    </div>
+  </header>
+
+  <section class="block">
+    <div class="block-title"><h2>Subah (Morning)</h2><span class="count" id="count-morning"></span></div>
+    <div class="rows" id="rows-morning"></div>
+    <div class="add-row"><button data-add="morning">+ add item</button></div>
+  </section>
+
+  <section class="block">
+    <div class="block-title"><h2>Din (Work / Day)</h2><span class="count" id="count-work"></span></div>
+    <div class="rows" id="rows-work"></div>
+    <div class="add-row"><button data-add="work">+ add item</button></div>
+  </section>
+
+  <section class="block">
+    <div class="block-title"><h2>Shaam / Raat (Evening)</h2><span class="count" id="count-evening"></span></div>
+    <div class="rows" id="rows-evening"></div>
+    <div class="add-row"><button data-add="evening">+ add item</button></div>
+  </section>
+
+  <section class="block">
+    <div class="block-title"><h2>Aaj ka mood</h2></div>
+    <div class="mood-row" id="moodRow">
+      <button data-mood="😴">😴</button>
+      <button data-mood="😩">😩</button>
+      <button data-mood="😐">😐</button>
+      <button data-mood="🙂">🙂</button>
+      <button data-mood="🔥">🔥</button>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-title"><h2>Quick numbers</h2></div>
+    <div class="metrics">
+      <div class="metric">
+        <label>Sleep (hrs)</label>
+        <div class="stepper">
+          <button data-step="sleep" data-dir="-1">–</button>
+          <span class="val" id="val-sleep">7</span>
+          <button data-step="sleep" data-dir="1">+</button>
+        </div>
+      </div>
+      <div class="metric">
+        <label>Water (glasses)</label>
+        <div class="stepper">
+          <button data-step="water" data-dir="-1">–</button>
+          <span class="val" id="val-water">0</span>
+          <button data-step="water" data-dir="1">+</button>
+        </div>
+      </div>
+      <div class="metric">
+        <label>Focus (1–5)</label>
+        <div class="stepper">
+          <button data-step="focus" data-dir="-1">–</button>
+          <span class="val" id="val-focus">3</span>
+          <button data-step="focus" data-dir="1">+</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-title"><h2>Notes / reflection</h2></div>
+    <textarea class="notes" id="notes" placeholder="Aaj kaisa gaya... kal kya better karna hai..."></textarea>
+  </section>
+
+  <footer class="status">
+    <span><span class="dot"></span><span id="saveStatus">saved locally on this device</span></span>
+    <button class="history-toggle" id="historyToggle">past entries ▾</button>
+  </footer>
+  <div class="history-list" id="historyList"></div>
+
+</div>
+
+<script>
+(function () {
+  const STORAGE_PREFIX = 'ledger-entry-';
+  const dateInput = document.getElementById('entryDate');
+  const entryNoEl = document.getElementById('entryNo');
+  const notesEl = document.getElementById('notes');
+  const saveStatusEl = document.getElementById('saveStatus');
+  const historyToggle = document.getElementById('historyToggle');
+  const historyList = document.getElementById('historyList');
+
+  const DEFAULT_ITEMS = {
+    morning: [
+      { time: '06:30', task: 'Uthna + paani piyo', done: false },
+      { time: '07:30', task: 'Ready + breakfast', done: false }
+    ],
+    work: [
+      { time: '09:30', task: 'Login + inbox check', done: false },
+      { time: '13:00', task: 'Lunch break', done: false }
+    ],
+    evening: [
+      { time: '19:00', task: 'Walk / stretch', done: false },
+      { time: '22:30', task: 'Wind down, phone off', done: false }
+    ]
+  };
+
+  function todayStr() {
+    const d = new Date();
+    const off = d.getTimezoneOffset();
+    return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
+  }
+
+  function keyFor(dateStr) { return STORAGE_PREFIX + dateStr; }
+
+  function emptyEntry() {
+    return {
+      items: JSON.parse(JSON.stringify(DEFAULT_ITEMS)),
+      mood: null,
+      sleep: 7,
+      water: 0,
+      focus: 3,
+      notes: ''
+    };
+  }
+
+  function loadEntry(dateStr) {
+    try {
+      const raw = localStorage.getItem(keyFor(dateStr));
+      if (!raw) return emptyEntry();
+      const parsed = JSON.parse(raw);
+      // guard against missing fields from older saves
+      return Object.assign(emptyEntry(), parsed, {
+        items: Object.assign(JSON.parse(JSON.stringify(DEFAULT_ITEMS)), parsed.items || {})
+      });
+    } catch (e) {
+      return emptyEntry();
+    }
+  }
+
+  function saveEntry() {
+    try {
+      localStorage.setItem(keyFor(state.date), JSON.stringify(state.entry));
+      saveStatusEl.textContent = 'saved locally on this device';
+    } catch (e) {
+      saveStatusEl.textContent = 'could not save (storage unavailable)';
+    }
+  }
+
+  function listSavedDates() {
+    const dates = [];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(STORAGE_PREFIX)) dates.push(k.slice(STORAGE_PREFIX.length));
+      }
+    } catch (e) {}
+    return dates.sort().reverse();
+  }
+
+  function entryNumberFor(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const start = new Date(d.getFullYear(), 0, 0);
+    const diff = d - start;
+    const dayOfYear = Math.floor(diff / 86400000);
+    return String(dayOfYear).padStart(3, '0') + '/' + d.getFullYear();
+  }
+
+  const state = { date: todayStr(), entry: null };
+
+  function render() {
+    dateInput.value = state.date;
+    entryNoEl.textContent = 'ENTRY ' + entryNumberFor(state.date);
+    notesEl.value = state.entry.notes || '';
+
+    ['morning', 'work', 'evening'].forEach(renderSection);
+
+    document.querySelectorAll('#moodRow button').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mood === state.entry.mood);
+    });
+    document.getElementById('val-sleep').textContent = state.entry.sleep;
+    document.getElementById('val-water').textContent = state.entry.water;
+    document.getElementById('val-focus').textContent = state.entry.focus;
+
+    renderHistory();
+  }
+
+  function renderSection(section) {
+    const container = document.getElementById('rows-' + section);
+    const items = state.entry.items[section] || [];
+    container.innerHTML = '';
+    const doneCount = items.filter(i => i.done).length;
+    document.getElementById('count-' + section).textContent = items.length
+      ? doneCount + ' / ' + items.length
+      : '';
+
+    items.forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'row' + (item.done ? ' done' : '');
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = item.done;
+      checkbox.addEventListener('change', () => {
+        item.done = checkbox.checked;
+        saveEntry();
+        renderSection(section);
+      });
+
+      const timeInput = document.createElement('input');
+      timeInput.className = 'time';
+      timeInput.type = 'text';
+      timeInput.value = item.time || '';
+      timeInput.placeholder = '--:--';
+      timeInput.addEventListener('change', () => {
+        item.time = timeInput.value;
+        saveEntry();
+      });
+
+      const taskInput = document.createElement('input');
+      taskInput.className = 'task';
+      taskInput.type = 'text';
+      taskInput.value = item.task || '';
+      taskInput.placeholder = 'task...';
+      taskInput.addEventListener('change', () => {
+        item.task = taskInput.value;
+        saveEntry();
+      });
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'del';
+      delBtn.textContent = '✕';
+      delBtn.title = 'remove';
+      delBtn.addEventListener('click', () => {
+        items.splice(idx, 1);
+        saveEntry();
+        renderSection(section);
+      });
+
+      row.appendChild(checkbox);
+      row.appendChild(timeInput);
+      row.appendChild(taskInput);
+      row.appendChild(delBtn);
+      container.appendChild(row);
+    });
+  }
+
+  function renderHistory() {
+    const dates = listSavedDates();
+    historyList.innerHTML = '';
+    if (!dates.length) {
+      historyList.innerHTML = '<div class="history-item" style="cursor:default">no past entries yet</div>';
+      return;
+    }
+    dates.forEach(d => {
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      const e = loadEntry(d);
+      const totalDone = ['morning', 'work', 'evening'].reduce((sum, s) => sum + (e.items[s] || []).filter(i => i.done).length, 0);
+      const totalAll = ['morning', 'work', 'evening'].reduce((sum, s) => sum + (e.items[s] || []).length, 0);
+      item.innerHTML = '<span>' + d + (d === state.date ? ' (today)' : '') + '</span><span>' + totalDone + '/' + totalAll + (e.mood ? ' ' + e.mood : '') + '</span>';
+      item.addEventListener('click', () => {
+        state.date = d;
+        state.entry = loadEntry(d);
+        render();
+        historyList.classList.remove('open');
+      });
+      historyList.appendChild(item);
+    });
+  }
+
+  // events
+  dateInput.addEventListener('change', () => {
+    state.date = dateInput.value || todayStr();
+    state.entry = loadEntry(state.date);
+    render();
+  });
+
+  document.querySelectorAll('.add-row button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const section = btn.dataset.add;
+      state.entry.items[section].push({ time: '', task: '', done: false });
+      saveEntry();
+      renderSection(section);
+    });
+  });
+
+  document.getElementById('moodRow').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-mood]');
+    if (!btn) return;
+    state.entry.mood = state.entry.mood === btn.dataset.mood ? null : btn.dataset.mood;
+    saveEntry();
+    render();
+  });
+
+  document.querySelectorAll('[data-step]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.step;
+      const dir = parseInt(btn.dataset.dir, 10);
+      let min = 0, max = 24;
+      if (key === 'focus') { min = 1; max = 5; }
+      if (key === 'sleep') { max = 14; }
+      if (key === 'water') { max = 20; }
+      state.entry[key] = Math.max(min, Math.min(max, (state.entry[key] || 0) + dir));
+      saveEntry();
+      document.getElementById('val-' + key).textContent = state.entry[key];
+    });
+  });
+
+  notesEl.addEventListener('input', () => {
+    state.entry.notes = notesEl.value;
+    saveEntry();
+  });
+
+  historyToggle.addEventListener('click', () => {
+    historyList.classList.toggle('open');
+  });
+
+  // init
+  state.entry = loadEntry(state.date);
+  render();
+})();
+</script>
+</body>
+</html>
